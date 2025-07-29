@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CRM Test</title>
+</head>
+<body>
+    <h1>Testing CRM Functions</h1>
+    <p>Open the console to see test results</p>
+    
+    <script>
+        console.log("Testing CRM functionality...");
+        
+        // Test if all required functions exist
+        const requiredFunctions = [
+            'showPage',
+            'newEstimate', 
+            'quickInvoice',
+            'takePhoto',
+            'findSuppliers',
+            'startJob',
+            'completeJob',
+            'updateStats',
+            'quickInvoiceForJob',
+            'addJobExpense',
+            'saveExpense',
+            'sendInvoice',
+            'closeModal',
+            'navigate',
+            'searchSuppliers',
+            'findSuppliesForJob',
+            'callCustomer',
+            'navigateTo',
+            'viewCustomer',
+            'searchCustomers',
+            'updateEstimate',
+            'sendEstimate'
+        ];
+        
+        // Load the main file in an iframe to test
+        const iframe = document.createElement('iframe');
+        iframe.src = 'full-crm-demo.html';
+        iframe.style.width = '100%';
+        iframe.style.height = '600px';
+        document.body.appendChild(iframe);
+        
+        iframe.onload = function() {
+            const iframeWindow = iframe.contentWindow;
+            let missingFunctions = [];
+            
+            requiredFunctions.forEach(func => {
+                if (typeof iframeWindow[func] !== 'function') {
+                    missingFunctions.push(func);
+                    console.error(`Missing function: ${func}`);
+                } else {
+                    console.log(`✓ ${func} exists`);
+                }
+            });
+            
+            if (missingFunctions.length === 0) {
+                console.log("✅ All functions are defined!");
+            } else {
+                console.error(`❌ Missing ${missingFunctions.length} functions:`, missingFunctions);
+            }
+        };
+    </script>
+</body>
+</html>

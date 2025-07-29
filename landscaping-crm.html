@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>GreenPro CRM - Professional Landscaping Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        :root {
+            --primary: #2e7d32;
+            --primary-dark: #1b5e20;
+            --secondary: #ff6f00;
+            --success: #4caf50;
+            --danger: #f44336;
+            --warning: #ff9800;
+            --gray: #666;
+            --light-gray: #f5f5f5;
+            --border: #e0e0e0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #f8f8f8;
+            color: #333;
+            overflow-x: hidden;
+        }
+        
+        /* Header */
+        .header {
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .header-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 14px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        /* Main Content */
+        .main-content {
+            padding-top: 80px;
+            padding-bottom: 70px;
+            min-height: 100vh;
+        }
+        
+        .page {
+            display: none;
+            padding: 15px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .page.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .card:active {
+            transform: scale(0.98);
+        }
+        
+        /* Job Cards */
+        .job-card {
+            border-left: 4px solid var(--primary);
+        }
+        
+        .job-card.urgent {
+            border-left-color: var(--danger);
+        }
+        
+        .job-card.in-progress {
+            background: #fff3e0;
+            border-left-color: var(--warning);
+        }
+        
+        .job-card.completed {
+            opacity: 0.6;
+            background: #f1f8e9;
+        }
+        
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+        
+        .job-time {
+            font-size: 14px;
+            color: var(--gray);
+        }
+        
+        .job-price {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .job-customer {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .job-address {
+            font-size: 14px;
+            color: var(--gray);
+            margin-bottom: 8px;
+        }
+        
+        .job-services {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .service-tag {
+            background: var(--light-gray);
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            color: var(--gray);
+        }
+        
+        .job-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        /* Buttons */
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn:active {
+            transform: scale(0.95);
+        }
+        
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+        
+        .btn-outline {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+        }
+        
+        .btn-success {
+            background: var(--success);
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+        }
+        
+        .btn-full {
+            width: 100%;
+        }
+        
+        /* Forms */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #555;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            font-family: inherit;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .quick-action {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .quick-action:active {
+            transform: scale(0.95);
+        }
+        
+        .quick-action-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        
+        .quick-action-label {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        /* Estimate Builder */
+        .estimate-services {
+            background: var(--light-gray);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .service-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .service-row:last-child {
+            border-bottom: none;
+        }
+        
+        .service-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .toggle-switch {
+            width: 50px;
+            height: 26px;
+            background: #ccc;
+            border-radius: 13px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .toggle-switch.active {
+            background: var(--success);
+        }
+        
+        .toggle-slider {
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(24px);
+        }
+        
+        .estimate-total {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .total-label {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .total-amount {
+            font-size: 36px;
+            font-weight: bold;
+        }
+        
+        /* Supplier List */
+        .supplier-card {
+            border: 2px solid var(--border);
+            cursor: pointer;
+        }
+        
+        .supplier-card.selected {
+            border-color: var(--primary);
+            background: #e8f5e9;
+        }
+        
+        .supplier-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+        
+        .supplier-name {
+            font-weight: 600;
+            font-size: 18px;
+        }
+        
+        .supplier-distance {
+            color: var(--gray);
+            font-size: 14px;
+        }
+        
+        .supplier-items {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+        
+        .item-price {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        /* Calendar View */
+        .calendar-week {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .calendar-day {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            min-height: 80px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .calendar-day-header {
+            font-size: 12px;
+            color: var(--gray);
+            margin-bottom: 5px;
+        }
+        
+        .calendar-day-number {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .calendar-job-count {
+            font-size: 12px;
+            color: var(--primary);
+        }
+        
+        /* Customer Details */
+        .customer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .customer-name-large {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .customer-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: var(--light-gray);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: var(--gray);
+        }
+        
+        /* Photo Grid */
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .photo-placeholder {
+            background: var(--light-gray);
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            color: var(--gray);
+            cursor: pointer;
+            border: 2px dashed var(--border);
+        }
+        
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        
+        .nav-item {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--gray);
+        }
+        
+        .nav-item.active {
+            color: var(--primary);
+        }
+        
+        .nav-icon {
+            font-size: 24px;
+            margin-bottom: 2px;
+        }
+        
+        .nav-label {
+            font-size: 12px;
+            display: block;
+        }
+        
+        /* FAB */
+        .fab {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            cursor: pointer;
+            z-index: 999;
+            transition: all 0.3s ease;
+        }
+        
+        .fab:active {
+            transform: scale(0.9);
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            padding: 20px;
+        }
+        
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .modal-close {
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray);
+        }
+        
+        /* Responsive */
+        @media (min-width: 768px) {
+            .quick-actions {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .photo-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>GreenPro CRM</h1>
+        <div class="header-stats">
+            <div class="stat-item">
+                <div class="stat-value">$<span id="daily-profit">0</span></div>
+                <div>Today</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value"><span id="jobs-remaining">8</span></div>
+                <div>Jobs</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Today Page -->
+        <div id="today-page" class="page active">
+            <div class="quick-actions">
+                <div class="quick-action" onclick="showEstimate()">
+                    <div class="quick-action-icon">📝</div>
+                    <div class="quick-action-label">New Estimate</div>
+                </div>
+                <div class="quick-action" onclick="showSuppliers()">
+                    <div class="quick-action-icon">🏪</div>
+                    <div class="quick-action-label">Suppliers</div>
+                </div>
+                <div class="quick-action" onclick="takePhoto()">
+                    <div class="quick-action-icon">📸</div>
+                    <div class="quick-action-label">Take Photo</div>
+                </div>
+                <div class="quick-action" onclick="quickInvoice()">
+                    <div class="quick-action-icon">💵</div>
+                    <div class="quick-action-label">Quick Invoice</div>
+                </div>
+            </div>
+
+            <h2 style="margin-bottom: 15px;">Today's Route</h2>
+            
+            <div class="job-card card urgent" data-job-id="1">
+                <div class="job-header">
+                    <div>
+                        <div class="job-time">8:00 AM - OVERDUE</div>
+                        <div class="job-customer">Mrs. Chen</div>
+                        <div class="job-address">1423 Maple St, Salt Lake City</div>
+                    </div>
+                    <div class="job-price">$65</div>
+                </div>
+                <div class="job-services">
+                    <span class="service-tag">Mow</span>
+                    <span class="service-tag">Edge</span>
+                    <span class="service-tag">Blow</span>
+                </div>
+                <div class="job-actions">
+                    <button class="btn btn-small btn-outline" onclick="navigate(this)">Navigate</button>
+                    <button class="btn btn-small btn-warning" onclick="startJob(this)">Start Job</button>
+                </div>
+            </div>
+
+            <div class="job-card card" data-job-id="2">
+                <div class="job-header">
+                    <div>
+                        <div class="job-time">9:30 AM</div>
+                        <div class="job-customer">Johnson</div>
+                        <div class="job-address">1847 Oak St, Provo</div>
+                    </div>
+                    <div class="job-price">$75</div>
+                </div>
+                <div class="job-services">
+                    <span class="service-tag">Mow</span>
+                    <span class="service-tag">Edge</span>
+                    <span class="service-tag">Fertilize</span>
+                    <span class="service-tag">Check Drainage</span>
+                </div>
+                <div class="job-actions">
+                    <button class="btn btn-small btn-outline" onclick="navigate(this)">Navigate</button>
+                    <button class="btn btn-small" onclick="startJob(this)">Start Job</button>
+                </div>
+            </div>
+
+            <div class="job-card card" data-job-id="3">
+                <div class="job-header">
+                    <div>
+                        <div class="job-time">11:00 AM</div>
+                        <div class="job-customer">Henderson</div>
+                        <div class="job-address">2341 Pine Ave, Sandy</div>
+                    </div>
+                    <div class="job-price">$120</div>
+                </div>
+                <div class="job-services">
+                    <span class="service-tag">Full Service</span>
+                    <span class="service-tag">Shrub Trim</span>
+                    <span class="service-tag">Treat Aphids</span>
+                </div>
+                <div class="job-actions">
+                    <button class="btn btn-small btn-outline" onclick="navigate(this)">Navigate</button>
+                    <button class="btn btn-small" onclick="startJob(this)">Start Job</button>
+                </div>
+            </div>
+
+            <div class="job-card card" data-job-id="4">
+                <div class="job-header">
+                    <div>
+                        <div class="job-time">1:00 PM</div>
+                        <div class="job-customer">New Construction - Desert Mesa</div>
+                        <div class="job-address">1592 Desert Mesa Ct, Lehi</div>
+                    </div>
+                    <div class="job-price">$500</div>
+                </div>
+                <div class="job-services">
+                    <span class="service-tag">Grade Prep</span>
+                    <span class="service-tag">Topsoil</span>
+                    <span class="service-tag">Jake + Tyler</span>
+                </div>
+                <div class="job-actions">
+                    <button class="btn btn-small btn-outline" onclick="navigate(this)">Navigate</button>
+                    <button class="btn btn-small" onclick="startJob(this)">Start Job</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Schedule Page -->
+        <div id="schedule-page" class="page">
+            <h2 style="margin-bottom: 20px;">This Week</h2>
+            
+            <div class="calendar-week">
+                <div class="calendar-day">
+                    <div class="calendar-day-header">MON</div>
+                    <div class="calendar-day-number">15</div>
+                    <div class="calendar-job-count">6 jobs</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="calendar-day-header">TUE</div>
+                    <div class="calendar-day-number">16</div>
+                    <div class="calendar-job-count">5 jobs</div>
+                </div>
+                <div class="calendar-day" style="background: #e8f5e9;">
+                    <div class="calendar-day-header">WED</div>
+                    <div class="calendar-day-number">17</div>
+                    <div class="calendar-job-count">8 jobs</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="calendar-day-header">THU</div>
+                    <div class="calendar-day-number">18</div>
+                    <div class="calendar-job-count">7 jobs</div>
+                </div>
+                <div class="calendar-day" style="background: #ffebee;">
+                    <div class="calendar-day-header">FRI</div>
+                    <div class="calendar-day-number">19</div>
+                    <div class="calendar-job-count">OPEN</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="calendar-day-header">SAT</div>
+                    <div class="calendar-day-number">20</div>
+                    <div class="calendar-job-count">3 jobs</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="calendar-day-header">SUN</div>
+                    <div class="calendar-day-number">21</div>
+                    <div class="calendar-job-count">Off</div>
+                </div>
+            </div>
+
+            <h3 style="margin-bottom: 15px;">Tomorrow - Thursday</h3>
+            
+            <div class="job-card card">
+                <div class="job-header">
+                    <div>
+                        <div class="job-time">7:00 AM - 12:00 PM</div>
+                        <div class="job-customer">Williams Property</div>
+                        <div class="job-address">445 Center St, American Fork</div>
+                    </div>
+                    <div class="job-price">$850</div>
+                </div>
+                <div class="job-services">
+                    <span class="service-tag">Spring Cleanup</span>
+                    <span class="service-tag">Mulch Install</span>
+                    <span class="service-tag">Jake + Tyler</span>
+                </div>
+            </div>
+
+            <div class="job-card card">
+                <div class="job-header">
+                    <div>
+                        <div class="job-time">2:00 PM</div>
+                        <div class="job-customer">Smith</div>
+                        <div class="job-address">789 Elm Dr, Orem</div>
+                    </div>
+                    <div class="job-price">$85</div>
+                </div>
+                <div class="job-services">
+                    <span class="service-tag">Weekly Mow</span>
+                    <span class="service-tag">Jake Solo</span>
+                </div>
+            </div>
+
+            <div class="card" style="background: #ffebee; border-left: 4px solid var(--danger);">
+                <h3 style="color: var(--danger); margin-bottom: 10px;">⚠️ Friday - Need Jobs!</h3>
+                <p style="color: #666;">Lost HOA contract - $450/week income gap</p>
+                <button class="btn btn-full" style="margin-top: 10px;">Check Pending Estimates</button>
+            </div>
+        </div>
+
+        <!-- Customers Page -->
+        <div id="customers-page" class="page">
+            <div class="form-group">
+                <input type="search" placeholder="Search customers..." onkeyup="searchCustomers(this.value)">
+            </div>
+
+            <div id="customer-list">
+                <div class="card customer-card" onclick="showCustomerDetails('chen')">
+                    <div class="job-header">
+                        <div>
+                            <div class="job-customer">Mrs. Chen</div>
+                            <div class="job-address">1423 Maple St</div>
+                            <div style="margin-top: 5px;">
+                                <span class="service-tag">Weekly</span>
+                                <span class="service-tag">$65</span>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="color: var(--danger); font-size: 14px;">Overdue</div>
+                            <div style="color: var(--gray); font-size: 12px;">14 days</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card customer-card" onclick="showCustomerDetails('johnson')">
+                    <div class="job-header">
+                        <div>
+                            <div class="job-customer">Johnson</div>
+                            <div class="job-address">1847 Oak St</div>
+                            <div style="margin-top: 5px;">
+                                <span class="service-tag">Weekly</span>
+                                <span class="service-tag">$75</span>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="color: var(--warning); font-size: 14px;">Drainage Pending</div>
+                            <div style="color: var(--gray); font-size: 12px;">Est. $1,800</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card customer-card" onclick="showCustomerDetails('henderson')">
+                    <div class="job-header">
+                        <div>
+                            <div class="job-customer">Henderson</div>
+                            <div class="job-address">2341 Pine Ave</div>
+                            <div style="margin-top: 5px;">
+                                <span class="service-tag">Bi-weekly</span>
+                                <span class="service-tag">$120</span>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="color: var(--success); font-size: 14px;">Current</div>
+                            <div style="color: var(--gray); font-size: 12px;">2 years</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-full" style="margin-top: 20px;" onclick="addCustomer()">+ Add New Customer</button>
+        </div>
+
+        <!-- Estimate Page -->
+        <div id="estimate-page" class="page">
+            <h2 style="margin-bottom: 20px;">Create Estimate</h2>
+            
+            <div class="form-group">
+                <label class="form-label">Customer Information</label>
+                <input type="text" placeholder="Name" id="est-name">
+            </div>
+            
+            <div class="form-group">
+                <input type="text" placeholder="Address" id="est-address">
+            </div>
+            
+            <div class="form-group">
+                <input type="tel" placeholder="Phone" id="est-phone">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Property Type</label>
+                <select id="property-type" onchange="updateEstimateForm()">
+                    <option value="">Select Type</option>
+                    <option value="residential">Residential</option>
+                    <option value="commercial">Commercial</option>
+                    <option value="new-construction">New Construction</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Yard Size</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <input type="number" placeholder="Front (sq ft)" id="front-sqft">
+                    <input type="number" placeholder="Back (sq ft)" id="back-sqft">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Services</label>
+                <div class="estimate-services">
+                    <div class="service-row">
+                        <div class="service-toggle">
+                            <div class="toggle-switch" onclick="toggleService(this, 'mow', 65)">
+                                <div class="toggle-slider"></div>
+                            </div>
+                            <span>Mow & Edge</span>
+                        </div>
+                        <span>$65</span>
+                    </div>
+                    <div class="service-row">
+                        <div class="service-toggle">
+                            <div class="toggle-switch" onclick="toggleService(this, 'trim', 45)">
+                                <div class="toggle-slider"></div>
+                            </div>
+                            <span>Shrub Trimming</span>
+                        </div>
+                        <span>$45</span>
+                    </div>
+                    <div class="service-row">
+                        <div class="service-toggle">
+                            <div class="toggle-switch" onclick="toggleService(this, 'cleanup', 150)">
+                                <div class="toggle-slider"></div>
+                            </div>
+                            <span>Spring Cleanup</span>
+                        </div>
+                        <span>$150</span>
+                    </div>
+                    <div class="service-row">
+                        <div class="service-toggle">
+                            <div class="toggle-switch" onclick="toggleService(this, 'fertilize', 55)">
+                                <div class="toggle-slider"></div>
+                            </div>
+                            <span>Fertilize</span>
+                        </div>
+                        <span>$55</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Notes</label>
+                <textarea placeholder="Special instructions, problem areas, etc." id="est-notes"></textarea>
+            </div>
+
+            <div class="estimate-total">
+                <div class="total-label">Estimated Total</div>
+                <div class="total-amount">$<span id="estimate-total">0</span></div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-outline" onclick="saveEstimate()">Save Draft</button>
+                <button class="btn" onclick="sendEstimate()">Send to Customer</button>
+            </div>
+        </div>
+
+        <!-- Suppliers Page -->
+        <div id="suppliers-page" class="page">
+            <h2 style="margin-bottom: 20px;">Material Suppliers</h2>
+            
+            <div class="form-group">
+                <label class="form-label">What do you need?</label>
+                <select id="material-type" onchange="filterSuppliers()">
+                    <option value="all">All Materials</option>
+                    <option value="mulch">Mulch</option>
+                    <option value="soil">Topsoil/Compost</option>
+                    <option value="seed">Grass Seed</option>
+                    <option value="fertilizer">Fertilizer</option>
+                    <option value="rock">Decorative Rock</option>
+                    <option value="plants">Plants/Shrubs</option>
+                </select>
+            </div>
+
+            <div id="supplier-list">
+                <div class="card supplier-card" onclick="selectSupplier(this)">
+                    <div class="supplier-header">
+                        <div>
+                            <div class="supplier-name">IFA Country Store</div>
+                            <div class="supplier-distance">2.3 miles - 8 min</div>
+                        </div>
+                        <button class="btn btn-small btn-outline" onclick="callSupplier(event, '801-555-0111')">Call</button>
+                    </div>
+                    <div class="supplier-items">
+                        <div class="item-row">
+                            <span>Brown Mulch (2 cu ft)</span>
+                            <span class="item-price">$3.99</span>
+                        </div>
+                        <div class="item-row">
+                            <span>Topsoil (40 lb)</span>
+                            <span class="item-price">$2.49</span>
+                        </div>
+                        <div class="item-row">
+                            <span>Grass Seed (5 lb)</span>
+                            <span class="item-price">$24.99</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card supplier-card" onclick="selectSupplier(this)">
+                    <div class="supplier-header">
+                        <div>
+                            <div class="supplier-name">Home Depot</div>
+                            <div class="supplier-distance">4.1 miles - 12 min</div>
+                        </div>
+                        <button class="btn btn-small btn-outline" onclick="callSupplier(event, '801-555-0222')">Call</button>
+                    </div>
+                    <div class="supplier-items">
+                        <div class="item-row">
+                            <span>Brown Mulch (2 cu ft)</span>
+                            <span class="item-price">$3.48</span>
+                        </div>
+                        <div class="item-row">
+                            <span>Topsoil (40 lb)</span>
+                            <span class="item-price">$1.98</span>
+                        </div>
+                        <div class="item-row">
+                            <span>Grass Seed (5 lb)</span>
+                            <span class="item-price">$19.99</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card supplier-card" onclick="selectSupplier(this)">
+                    <div class="supplier-header">
+                        <div>
+                            <div class="supplier-name">Sunroc Building Materials</div>
+                            <div class="supplier-distance">6.2 miles - 15 min</div>
+                        </div>
+                        <button class="btn btn-small btn-outline" onclick="callSupplier(event, '801-555-0333')">Call</button>
+                    </div>
+                    <div class="supplier-items">
+                        <div class="item-row">
+                            <span>Decorative Rock (ton)</span>
+                            <span class="item-price">$45.00</span>
+                        </div>
+                        <div class="item-row">
+                            <span>Paver Sand (ton)</span>
+                            <span class="item-price">$32.00</span>
+                        </div>
+                        <div class="item-row">
+                            <span>Topsoil (cubic yard)</span>
+                            <span class="item-price">$28.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-full" style="margin-top: 20px;" onclick="navigateToSupplier()">Navigate to Selected</button>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="showPage('today')">
+            <div class="nav-icon">📋</div>
+            <span class="nav-label">Today</span>
+        </div>
+        <div class="nav-item" onclick="showPage('schedule')">
+            <div class="nav-icon">📅</div>
+            <span class="nav-label">Schedule</span>
+        </div>
+        <div class="nav-item" onclick="showPage('customers')">
+            <div class="nav-icon">👥</div>
+            <span class="nav-label">Customers</span>
+        </div>
+        <div class="nav-item" onclick="showPage('estimate')">
+            <div class="nav-icon">📝</div>
+            <span class="nav-label">Estimate</span>
+        </div>
+        <div class="nav-item" onclick="showPage('suppliers')">
+            <div class="nav-icon">🏪</div>
+            <span class="nav-label">Suppliers</span>
+        </div>
+    </div>
+
+    <!-- FAB -->
+    <button class="fab" onclick="quickActions()">+</button>
+
+    <!-- Quick Invoice Modal -->
+    <div id="quick-invoice-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Quick Invoice</h2>
+                <span class="modal-close" onclick="closeModal('quick-invoice-modal')">&times;</span>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Customer</label>
+                <select id="invoice-customer">
+                    <option value="">Select Customer</option>
+                    <option value="chen">Mrs. Chen - 1423 Maple St</option>
+                    <option value="johnson">Johnson - 1847 Oak St</option>
+                    <option value="henderson">Henderson - 2341 Pine Ave</option>
+                    <option value="new">New Customer</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Services Performed</label>
+                <textarea id="invoice-services" placeholder="Mow, edge, blow..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Amount</label>
+                <input type="number" id="invoice-amount" placeholder="0.00">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Photos</label>
+                <div class="photo-grid">
+                    <div class="photo-placeholder" onclick="addPhoto('before')">
+                        <div>📷</div>
+                        <div>Before</div>
+                    </div>
+                    <div class="photo-placeholder" onclick="addPhoto('after')">
+                        <div>📷</div>
+                        <div>After</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-full" onclick="sendInvoice()">Send Invoice</button>
+        </div>
+    </div>
+
+    <!-- Customer Details Modal -->
+    <div id="customer-details-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="customer-name-detail">Customer Details</h2>
+                <span class="modal-close" onclick="closeModal('customer-details-modal')">&times;</span>
+            </div>
+            
+            <div class="customer-stats">
+                <div class="stat-card">
+                    <div class="stat-number">2</div>
+                    <div class="stat-label">Years</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">$3,120</div>
+                    <div class="stat-label">Lifetime Value</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">48</div>
+                    <div class="stat-label">Visits</div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-bottom: 15px;">
+                <h3 style="margin-bottom: 10px;">Contact Info</h3>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Phone:</span>
+                        <a href="tel:801-555-0101" style="color: var(--primary);">801-555-0101</a>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Address:</span>
+                        <span>1423 Maple St, SLC</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Service:</span>
+                        <span>Weekly, $65</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-bottom: 15px;">
+                <h3 style="margin-bottom: 10px;">Notes</h3>
+                <p style="color: #666; font-size: 14px;">
+                    - Gate code: 1234<br>
+                    - Dog in backyard (friendly)<br>
+                    - Prefers morning service<br>
+                    - Daughter's graduation party May 15
+                </p>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 10px;">Recent Jobs</h3>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border);">
+                        <div>
+                            <div style="font-weight: 600;">Weekly Service</div>
+                            <div style="font-size: 12px; color: #666;">May 10, 2024</div>
+                        </div>
+                        <div style="color: var(--success);">$65 ✓</div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border);">
+                        <div>
+                            <div style="font-weight: 600;">Weekly Service</div>
+                            <div style="font-size: 12px; color: #666;">May 3, 2024</div>
+                        </div>
+                        <div style="color: var(--success);">$65 ✓</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-outline" onclick="callCustomer('801-555-0101')">Call</button>
+                <button class="btn" onclick="scheduleJob()">Schedule Job</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let dailyProfit = 0;
+        let jobsRemaining = 8;
+        let selectedServices = [];
+        let estimateTotal = 0;
+        let selectedSupplier = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDailyData();
+            updateStats();
+        });
+
+        // Navigation
+        function showPage(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(page + '-page').classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event.target.closest('.nav-item').classList.add('active');
+        }
+
+        // Job Management
+        function navigate(btn) {
+            const card = btn.closest('.job-card');
+            const address = card.querySelector('.job-address').textContent;
+            window.open(`https://maps.google.com/?q=${encodeURIComponent(address)}`, '_blank');
+        }
+
+        function startJob(btn) {
+            const card = btn.closest('.job-card');
+            
+            if (btn.textContent === 'Start Job') {
+                card.classList.add('in-progress');
+                btn.textContent = 'Complete Job';
+                btn.classList.remove('btn-warning');
+                btn.classList.add('btn-success');
+            } else {
+                completeJob(card);
+            }
+        }
+
+        function completeJob(card) {
+            const price = parseInt(card.querySelector('.job-price').textContent.replace('$', ''));
+            dailyProfit += price;
+            jobsRemaining--;
+            
+            card.classList.remove('in-progress');
+            card.classList.add('completed');
+            
+            updateStats();
+            saveDailyData();
+            
+            // Show quick invoice option
+            setTimeout(() => {
+                if (confirm('Job complete! Send invoice now?')) {
+                    showQuickInvoice(card);
+                }
+            }, 300);
+        }
+
+        // Stats Management
+        function updateStats() {
+            document.getElementById('daily-profit').textContent = dailyProfit;
+            document.getElementById('jobs-remaining').textContent = jobsRemaining;
+        }
+
+        function loadDailyData() {
+            const today = new Date().toDateString();
+            const savedDate = localStorage.getItem('workDate');
+            
+            if (savedDate === today) {
+                dailyProfit = parseInt(localStorage.getItem('dailyProfit') || 0);
+                jobsRemaining = parseInt(localStorage.getItem('jobsRemaining') || 8);
+            } else {
+                // New day
+                localStorage.setItem('workDate', today);
+                saveDailyData();
+            }
+        }
+
+        function saveDailyData() {
+            localStorage.setItem('dailyProfit', dailyProfit);
+            localStorage.setItem('jobsRemaining', jobsRemaining);
+        }
+
+        // Estimate Functions
+        function toggleService(toggle, service, price) {
+            toggle.classList.toggle('active');
+            
+            if (toggle.classList.contains('active')) {
+                selectedServices.push({ service, price });
+                estimateTotal += price;
+            } else {
+                selectedServices = selectedServices.filter(s => s.service !== service);
+                estimateTotal -= price;
+            }
+            
+            document.getElementById('estimate-total').textContent = estimateTotal;
+        }
+
+        function updateEstimateForm() {
+            const type = document.getElementById('property-type').value;
+            
+            // Reset services
+            document.querySelectorAll('.toggle-switch').forEach(toggle => {
+                toggle.classList.remove('active');
+            });
+            selectedServices = [];
+            estimateTotal = 0;
+            
+            // Update prices based on property type
+            if (type === 'commercial') {
+                // Show commercial pricing
+            } else if (type === 'new-construction') {
+                // Show new construction options
+            }
+        }
+
+        function saveEstimate() {
+            const estimate = {
+                name: document.getElementById('est-name').value,
+                address: document.getElementById('est-address').value,
+                phone: document.getElementById('est-phone').value,
+                services: selectedServices,
+                total: estimateTotal,
+                date: new Date().toISOString()
+            };
+            
+            // Save to localStorage
+            let estimates = JSON.parse(localStorage.getItem('estimates') || '[]');
+            estimates.push(estimate);
+            localStorage.setItem('estimates', JSON.stringify(estimates));
+            
+            alert('Estimate saved!');
+            clearEstimateForm();
+        }
+
+        function sendEstimate() {
+            if (!document.getElementById('est-name').value) {
+                alert('Please enter customer information');
+                return;
+            }
+            
+            saveEstimate();
+            alert('Estimate sent to customer via text!');
+            showPage('today');
+        }
+
+        function clearEstimateForm() {
+            document.getElementById('est-name').value = '';
+            document.getElementById('est-address').value = '';
+            document.getElementById('est-phone').value = '';
+            document.getElementById('property-type').value = '';
+            document.getElementById('front-sqft').value = '';
+            document.getElementById('back-sqft').value = '';
+            document.getElementById('est-notes').value = '';
+            
+            document.querySelectorAll('.toggle-switch').forEach(toggle => {
+                toggle.classList.remove('active');
+            });
+            
+            selectedServices = [];
+            estimateTotal = 0;
+            document.getElementById('estimate-total').textContent = '0';
+        }
+
+        // Supplier Functions
+        function selectSupplier(card) {
+            document.querySelectorAll('.supplier-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            selectedSupplier = card;
+        }
+
+        function navigateToSupplier() {
+            if (!selectedSupplier) {
+                alert('Please select a supplier first');
+                return;
+            }
+            
+            const name = selectedSupplier.querySelector('.supplier-name').textContent;
+            window.open(`https://maps.google.com/?q=${encodeURIComponent(name + ' Utah County')}`, '_blank');
+        }
+
+        function callSupplier(event, number) {
+            event.stopPropagation();
+            window.location.href = `tel:${number}`;
+        }
+
+        function filterSuppliers() {
+            const type = document.getElementById('material-type').value;
+            // Filter supplier list based on material type
+        }
+
+        // Customer Functions
+        function searchCustomers(query) {
+            // Search customer list
+        }
+
+        function showCustomerDetails(customerId) {
+            document.getElementById('customer-details-modal').classList.add('active');
+            // Load customer details
+        }
+
+        function addCustomer() {
+            // Show add customer form
+            showPage('estimate');
+        }
+
+        // Quick Actions
+        function quickActions() {
+            const actions = [
+                'New Estimate',
+                'Quick Invoice',
+                'Take Photo',
+                'Add Expense',
+                'Call Customer'
+            ];
+            
+            const action = prompt('Quick Action:\n\n' + actions.map((a, i) => `${i+1}. ${a}`).join('\n'));
+            
+            switch(action) {
+                case '1': showPage('estimate'); break;
+                case '2': quickInvoice(); break;
+                case '3': takePhoto(); break;
+                case '4': addExpense(); break;
+                case '5': showPage('customers'); break;
+            }
+        }
+
+        function quickInvoice() {
+            document.getElementById('quick-invoice-modal').classList.add('active');
+        }
+
+        function showQuickInvoice(jobCard) {
+            const customer = jobCard.querySelector('.job-customer').textContent;
+            const services = Array.from(jobCard.querySelectorAll('.service-tag')).map(tag => tag.textContent).join(', ');
+            const amount = jobCard.querySelector('.job-price').textContent.replace('$', '');
+            
+            document.getElementById('invoice-customer').value = customer.toLowerCase().replace(/\s+/g, '');
+            document.getElementById('invoice-services').value = services;
+            document.getElementById('invoice-amount').value = amount;
+            
+            quickInvoice();
+        }
+
+        function sendInvoice() {
+            const customer = document.getElementById('invoice-customer').value;
+            const amount = document.getElementById('invoice-amount').value;
+            
+            if (!customer || !amount) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            alert(`Invoice for $${amount} sent!`);
+            closeModal('quick-invoice-modal');
+            
+            // Clear form
+            document.getElementById('invoice-customer').value = '';
+            document.getElementById('invoice-services').value = '';
+            document.getElementById('invoice-amount').value = '';
+        }
+
+        function takePhoto() {
+            alert('Opening camera...');
+            // In real app, would access device camera
+        }
+
+        function addPhoto(type) {
+            alert(`Adding ${type} photo...`);
+            // In real app, would access device photos
+        }
+
+        function addExpense() {
+            const expense = prompt('Expense amount:');
+            if (expense && !isNaN(expense)) {
+                const description = prompt('What for?');
+                if (description) {
+                    dailyProfit -= parseInt(expense);
+                    updateStats();
+                    saveDailyData();
+                    alert(`Expense recorded: $${expense} for ${description}`);
+                }
+            }
+        }
+
+        function callCustomer(number) {
+            window.location.href = `tel:${number}`;
+        }
+
+        function scheduleJob() {
+            alert('Opening schedule...');
+            closeModal('customer-details-modal');
+            showPage('schedule');
+        }
+
+        // Modal Functions
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Quick function references from quick actions
+        function showEstimate() {
+            showPage('estimate');
+        }
+
+        function showSuppliers() {
+            showPage('suppliers');
+        }
+
+        // Service Worker for offline functionality
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(() => {});
+        }
+    </script>
+</body>
+</html>

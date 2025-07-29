@@ -1,0 +1,1543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>GreenPro CRM - Demo Walkthrough</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        :root {
+            --primary: #2e7d32;
+            --primary-dark: #1b5e20;
+            --secondary: #ff6f00;
+            --success: #4caf50;
+            --danger: #f44336;
+            --warning: #ff9800;
+            --gray: #666;
+            --light-gray: #f5f5f5;
+            --border: #e0e0e0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #f8f8f8;
+            color: #333;
+            overflow-x: hidden;
+        }
+        
+        /* Demo Overlay */
+        .demo-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .demo-popup {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            animation: slideUp 0.3s ease;
+        }
+        
+        .demo-popup h2 {
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        .demo-popup p {
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        
+        .demo-button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        /* Tooltip System */
+        .tooltip {
+            position: fixed;
+            background: var(--primary);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            z-index: 10000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            max-width: 300px;
+            animation: fadeIn 0.3s ease;
+            display: none;
+        }
+        
+        .tooltip.active {
+            display: block;
+        }
+        
+        .tooltip-arrow {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-style: solid;
+        }
+        
+        .tooltip-arrow.top {
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 10px 10px 0 10px;
+            border-color: var(--primary) transparent transparent transparent;
+        }
+        
+        .tooltip-arrow.bottom {
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 0 10px 10px 10px;
+            border-color: transparent transparent var(--primary) transparent;
+        }
+        
+        .highlight {
+            position: relative;
+            z-index: 9998;
+            box-shadow: 0 0 0 4px #ffeb3b !important;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 4px #ffeb3b; }
+            50% { box-shadow: 0 0 0 8px #ffeb3b; }
+            100% { box-shadow: 0 0 0 4px #ffeb3b; }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* Header */
+        .header {
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .header-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 14px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        /* Main Content */
+        .main-content {
+            padding-top: 80px;
+            padding-bottom: 70px;
+            min-height: 100vh;
+        }
+        
+        .page {
+            display: none;
+            padding: 15px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        /* Job Cards */
+        .job-card {
+            border-left: 4px solid var(--primary);
+        }
+        
+        .job-card.urgent {
+            border-left-color: var(--danger);
+        }
+        
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+        
+        .job-time {
+            font-size: 14px;
+            color: var(--gray);
+        }
+        
+        .job-price {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .job-customer {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .job-address {
+            font-size: 14px;
+            color: var(--gray);
+            margin-bottom: 8px;
+        }
+        
+        .job-services {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .service-tag {
+            background: var(--light-gray);
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            color: var(--gray);
+        }
+        
+        /* Buttons */
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .btn:active {
+            transform: scale(0.95);
+        }
+        
+        .btn-outline {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        
+        .btn-full {
+            width: 100%;
+        }
+        
+        /* Forms */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #555;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            font-family: inherit;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .quick-action {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .quick-action-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        
+        .quick-action-label {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        /* Estimate Builder */
+        .estimate-services {
+            background: var(--light-gray);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .service-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .service-price {
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background 0.2s ease;
+            font-weight: 600;
+        }
+        
+        .service-price:hover {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .add-custom-btn {
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+            display: inline-block;
+        }
+        
+        .custom-item {
+            background: #e3f2fd;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .remove-btn {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 18px;
+            padding: 0 5px;
+        }
+        
+        .service-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .toggle-switch {
+            width: 50px;
+            height: 26px;
+            background: #ccc;
+            border-radius: 13px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .toggle-switch.active {
+            background: var(--success);
+        }
+        
+        .toggle-slider {
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(24px);
+        }
+        
+        .estimate-total {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .total-amount {
+            font-size: 36px;
+            font-weight: bold;
+        }
+        
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        
+        .nav-item {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--gray);
+        }
+        
+        .nav-item.active {
+            color: var(--primary);
+        }
+        
+        .nav-icon {
+            font-size: 24px;
+            margin-bottom: 2px;
+        }
+        
+        .nav-label {
+            font-size: 12px;
+            display: block;
+        }
+        
+        /* Phone Ring Animation */
+        .phone-ring {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 10001;
+            text-align: center;
+            display: none;
+        }
+        
+        .phone-ring.active {
+            display: block;
+            animation: ring 0.5s ease infinite alternate;
+        }
+        
+        @keyframes ring {
+            0% { transform: translate(-50%, -50%) rotate(-5deg); }
+            100% { transform: translate(-50%, -50%) rotate(5deg); }
+        }
+        
+        .phone-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+        
+        .caller-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .caller-number {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        /* Success Message */
+        .success-message {
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--success);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            z-index: 10000;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        
+        .success-message.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from { transform: translateX(-50%) translateY(-20px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Demo Start Overlay -->
+    <div class="demo-overlay" id="start-overlay">
+        <div class="demo-popup">
+            <h2>Welcome to GreenPro CRM</h2>
+            <p>You're Mike, a landscaper in Utah. It's Wednesday morning and you just got a call from a new potential customer.</p>
+            <p style="font-weight: bold;">Sarah Miller wants an estimate for her overgrown yard at 2847 Aspen Way in Park City.</p>
+            <button class="demo-button" onclick="startDemo()">Start Demo →</button>
+        </div>
+    </div>
+
+    <!-- Tooltip -->
+    <div class="tooltip" id="tooltip">
+        <span id="tooltip-text"></span>
+        <div class="tooltip-arrow top"></div>
+    </div>
+
+    <!-- Phone Ring -->
+    <div class="phone-ring" id="phone-ring">
+        <div class="phone-icon">📱</div>
+        <div class="caller-name">Sarah Miller</div>
+        <div class="caller-number">(801) 555-2847</div>
+        <button class="btn" onclick="answerCall()">Answer</button>
+    </div>
+
+    <!-- Success Message -->
+    <div class="success-message" id="success-message">
+        <span id="success-text"></span>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <h1>Wednesday, May 17</h1>
+        <div class="header-stats">
+            <div class="stat-item">
+                <div class="stat-value">$<span id="daily-profit">340</span></div>
+                <div>Today</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value"><span id="jobs-remaining">4</span></div>
+                <div>Jobs Left</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Today Page -->
+        <div id="today-page" class="page active">
+            <div class="quick-actions">
+                <div class="quick-action" id="new-estimate-btn" onclick="demoEstimate()">
+                    <div class="quick-action-icon">📝</div>
+                    <div class="quick-action-label">New Estimate</div>
+                </div>
+                <div class="quick-action" onclick="showSuppliers()">
+                    <div class="quick-action-icon">🏪</div>
+                    <div class="quick-action-label">Suppliers</div>
+                </div>
+                <div class="quick-action" onclick="takePhoto()">
+                    <div class="quick-action-icon">📸</div>
+                    <div class="quick-action-label">Take Photo</div>
+                </div>
+                <div class="quick-action" onclick="quickInvoice()">
+                    <div class="quick-action-icon">💵</div>
+                    <div class="quick-action-label">Quick Invoice</div>
+                </div>
+            </div>
+
+            <h2 style="margin-bottom: 15px;">Today's Route</h2>
+            
+            <div class="job-card card urgent">
+                <div class="job-header">
+                    <div>
+                        <div class="job-time">8:00 AM - COMPLETED ✓</div>
+                        <div class="job-customer">Rodriguez Family</div>
+                        <div class="job-address">1156 Canyon Rd, Provo</div>
+                    </div>
+                    <div class="job-price">$125</div>
+                </div>
+                <div class="job-services">
+                    <span class="service-tag">Spring Cleanup</span>
+                    <span class="service-tag">Mulch</span>
+                </div>
+            </div>
+
+            <div class="job-card card" style="background: #fff3e0;">
+                <div class="job-header">
+                    <div>
+                        <div class="job-time">10:30 AM - IN PROGRESS</div>
+                        <div class="job-customer">Thompson</div>
+                        <div class="job-address">3421 Oak Hills Dr, Sandy</div>
+                    </div>
+                    <div class="job-price">$85</div>
+                </div>
+                <div class="job-services">
+                    <span class="service-tag">Weekly Mow</span>
+                    <span class="service-tag">Edge</span>
+                    <span class="service-tag">Fertilize</span>
+                </div>
+            </div>
+
+            <div class="job-card card">
+                <div class="job-header">
+                    <div>
+                        <div class="job-time">1:00 PM</div>
+                        <div class="job-customer">Anderson Property</div>
+                        <div class="job-address">567 Meadow Lane, Lehi</div>
+                    </div>
+                    <div class="job-price">$95</div>
+                </div>
+                <div class="job-services">
+                    <span class="service-tag">Bi-weekly Service</span>
+                    <span class="service-tag">Shrub Trim</span>
+                </div>
+            </div>
+
+            <div class="job-card card" id="new-job-card" style="display: none;">
+                <div class="job-header">
+                    <div>
+                        <div class="job-time">3:30 PM - NEW</div>
+                        <div class="job-customer">Sarah Miller</div>
+                        <div class="job-address">2847 Aspen Way, Park City</div>
+                    </div>
+                    <div class="job-price">$450</div>
+                </div>
+                <div class="job-services">
+                    <span class="service-tag">Initial Cleanup</span>
+                    <span class="service-tag">Estimate Scheduled</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estimate Page -->
+        <div id="estimate-page" class="page">
+            <h2 style="margin-bottom: 20px;">Create Estimate</h2>
+            
+            <div class="form-group">
+                <label class="form-label">Customer Information</label>
+                <input type="text" id="est-name" value="">
+            </div>
+            
+            <div class="form-group">
+                <input type="text" id="est-address" value="">
+            </div>
+            
+            <div class="form-group">
+                <input type="tel" id="est-phone" value="">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Property Type</label>
+                <select id="property-type">
+                    <option value="">Select Type</option>
+                    <option value="residential">Residential</option>
+                    <option value="commercial">Commercial</option>
+                    <option value="new-construction">New Construction</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Yard Size (she said "about half acre")</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <input type="number" id="front-sqft" value="">
+                    <input type="number" id="back-sqft" value="">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Services Needed</label>
+                <div class="estimate-services" id="services-list">
+                    <div class="service-row">
+                        <div class="service-toggle">
+                            <div class="toggle-switch" id="cleanup-toggle" onclick="toggleService(this, 'cleanup', 350)">
+                                <div class="toggle-slider"></div>
+                            </div>
+                            <span>Initial Cleanup (overgrown)</span>
+                        </div>
+                        <span class="service-price" onclick="editPrice(this, 'cleanup')">$350</span>
+                    </div>
+                    <div class="service-row">
+                        <div class="service-toggle">
+                            <div class="toggle-switch" id="mow-toggle" onclick="toggleService(this, 'mow', 95)">
+                                <div class="toggle-slider"></div>
+                            </div>
+                            <span>Weekly Mow & Edge</span>
+                        </div>
+                        <span class="service-price" onclick="editPrice(this, 'mow')">$95</span>
+                    </div>
+                    <div class="service-row">
+                        <div class="service-toggle">
+                            <div class="toggle-switch" id="mulch-toggle" onclick="toggleService(this, 'mulch', 280)">
+                                <div class="toggle-slider"></div>
+                            </div>
+                            <span>Mulch Installation</span>
+                        </div>
+                        <span class="service-price" onclick="editPrice(this, 'mulch')">$280</span>
+                    </div>
+                    <div class="service-row">
+                        <div class="service-toggle">
+                            <div class="toggle-switch" onclick="toggleService(this, 'fertilize', 65)">
+                                <div class="toggle-slider"></div>
+                            </div>
+                            <span>Fertilizer Treatment</span>
+                        </div>
+                        <span class="service-price" onclick="editPrice(this, 'fertilize')">$65</span>
+                    </div>
+                    <div class="service-row" id="custom-service-row" style="display: none;">
+                        <div class="service-toggle">
+                            <input type="text" id="custom-service-name" placeholder="Custom service..." style="width: 200px; padding: 8px;">
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span>$<input type="number" id="custom-service-price" placeholder="0" style="width: 80px; padding: 8px;"></span>
+                            <button class="btn btn-small" onclick="saveCustomService()" style="padding: 6px 12px;">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <span class="add-custom-btn" onclick="addCustomService()">+ Add custom service or product</span>
+                
+                <div id="custom-items-list" style="margin-top: 15px; display: none;">
+                    <h4 style="margin-bottom: 10px; color: #666;">Custom Items:</h4>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Notes</label>
+                <textarea id="est-notes"></textarea>
+            </div>
+
+            <div class="estimate-total">
+                <div style="font-size: 14px; margin-bottom: 5px;">Estimated Total</div>
+                <div class="total-amount">$<span id="estimate-total">0</span></div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-outline" onclick="saveEstimate()">Save Draft</button>
+                <button class="btn" id="send-estimate-btn" onclick="sendEstimate()">Send to Customer</button>
+            </div>
+        </div>
+
+        <!-- Suppliers Page -->
+        <div id="suppliers-page" class="page">
+            <h2 style="margin-bottom: 20px;" id="supplier-header">Find Best Price</h2>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <button class="btn btn-outline" style="flex: 1; padding: 10px;" onclick="showKnownSuppliers()">Known Suppliers</button>
+                <button class="btn btn-outline" style="flex: 1; padding: 10px;" onclick="showManualEntry()">Manual Entry</button>
+            </div>
+            
+            <div id="known-suppliers-section">
+                <div class="card" style="border: 2px solid var(--primary); background: #e8f5e9;">
+                    <h3 style="color: var(--primary); margin-bottom: 10px;">Best Deal Found!</h3>
+                    <div style="font-size: 14px; color: #666;">
+                        IFA has a spring sale on mulch - Save $45 on this job!
+                    </div>
+                </div>
+
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <div>
+                        <div style="font-weight: 600; font-size: 18px;">IFA Country Store</div>
+                        <div style="color: #666; font-size: 14px;">2.3 miles - Open until 7pm</div>
+                    </div>
+                    <button class="btn btn-outline" style="padding: 8px 16px; height: fit-content;">Call</button>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; justify-content: space-between; padding: 8px; background: #f5f5f5; border-radius: 4px;">
+                        <span>Premium Brown Mulch</span>
+                        <span style="font-weight: 600; color: var(--success);">$2.99/bag (was $3.99)</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                        <span>Need: 35 bags</span>
+                        <span style="font-weight: 600;">Total: $104.65</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <div>
+                        <div style="font-weight: 600; font-size: 18px;">Home Depot</div>
+                        <div style="color: #666; font-size: 14px;">4.1 miles - Open until 9pm</div>
+                    </div>
+                    <button class="btn btn-outline" style="padding: 8px 16px; height: fit-content;">Call</button>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; justify-content: space-between; padding: 8px; background: #f5f5f5; border-radius: 4px;">
+                        <span>Premium Brown Mulch</span>
+                        <span style="font-weight: 600;">$3.48/bag</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                        <span>Need: 35 bags</span>
+                        <span style="font-weight: 600;">Total: $121.80</span>
+                    </div>
+                </div>
+            </div>
+
+                <button class="btn btn-full" onclick="selectSupplier()">Add IFA Stop to Today's Route</button>
+            </div>
+            
+            <!-- Japanese Maple Suppliers Section -->
+            <div id="tree-suppliers-section" style="display: none;">
+                <div class="card" style="border: 2px solid var(--warning); background: #fff3e0;">
+                    <h3 style="color: var(--warning); margin-bottom: 10px;">Specialty Item Alert</h3>
+                    <div style="font-size: 14px; color: #666;">
+                        Japanese Maples require specialty nurseries. Here are your best options:
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 18px;">Millcreek Gardens</div>
+                            <div style="color: #666; font-size: 14px;">3.8 miles - Specialty Nursery</div>
+                        </div>
+                        <button class="btn btn-outline" style="padding: 8px 16px; height: fit-content;">Call</button>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="display: flex; justify-content: space-between; padding: 8px; background: #f5f5f5; border-radius: 4px;">
+                            <span>Japanese Maple (5-6ft)</span>
+                            <span style="font-weight: 600;">$189 each</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 8px; background: #f5f5f5; border-radius: 4px;">
+                            <span>Japanese Maple (3-4ft)</span>
+                            <span style="font-weight: 600; color: var(--success);">$145 each</span>
+                        </div>
+                        <div style="font-size: 14px; color: #666; margin-top: 5px;">
+                            ✓ In stock • Delivery available • Expert advice
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 18px;">Western Gardens</div>
+                            <div style="color: #666; font-size: 14px;">6.2 miles - Full Service Nursery</div>
+                        </div>
+                        <button class="btn btn-outline" style="padding: 8px 16px; height: fit-content;">Call</button>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="display: flex; justify-content: space-between; padding: 8px; background: #f5f5f5; border-radius: 4px;">
+                            <span>Japanese Maple (4-5ft)</span>
+                            <span style="font-weight: 600;">$225 each</span>
+                        </div>
+                        <div style="font-size: 14px; color: var(--warning); margin-top: 5px;">
+                            ⚠️ Limited stock - call ahead
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
+                    <button class="btn btn-outline" onclick="showSupplierRoute()">View Route</button>
+                    <button class="btn" onclick="selectTreeSupplier()">Select Millcreek</button>
+                </div>
+            </div>
+            
+            <div id="manual-entry-section" style="display: none;">
+                <div class="card">
+                    <h3 style="margin-bottom: 15px;">Manual Price Entry</h3>
+                    <p style="color: #666; font-size: 14px; margin-bottom: 15px;">Know a guy? Enter custom pricing:</p>
+                    
+                    <div class="form-group">
+                        <input type="text" id="manual-supplier" placeholder="Supplier name (e.g., Tony's Landscaping Supply)">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Mulch Price</label>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="number" id="manual-price" placeholder="2.50" style="flex: 1;">
+                            <select id="price-unit" style="width: 120px;">
+                                <option value="bag">per bag</option>
+                                <option value="yard">per yard</option>
+                                <option value="total">total price</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <input type="text" id="manual-notes" placeholder="Notes (e.g., Cash only, call ahead)">
+                    </div>
+                    
+                    <button class="btn btn-full" onclick="saveManualPrice()">Use This Price</button>
+                </div>
+                
+                <div class="card" id="manual-comparison" style="display: none; background: #fff3e0;">
+                    <h4 style="margin-bottom: 10px;">Price Comparison:</h4>
+                    <div style="font-size: 14px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span>Your Guy:</span>
+                            <span id="manual-total" style="font-weight: 600; color: var(--success);">$87.50</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>IFA Price:</span>
+                            <span style="text-decoration: line-through; color: #999;">$104.65</span>
+                        </div>
+                        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border);">
+                            <strong style="color: var(--success);">You save: $17.15 extra!</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="showPage('today')">
+            <div class="nav-icon">📋</div>
+            <span class="nav-label">Today</span>
+        </div>
+        <div class="nav-item" onclick="showPage('schedule')">
+            <div class="nav-icon">📅</div>
+            <span class="nav-label">Schedule</span>
+        </div>
+        <div class="nav-item" onclick="showPage('customers')">
+            <div class="nav-icon">👥</div>
+            <span class="nav-label">Customers</span>
+        </div>
+        <div class="nav-item" id="estimate-nav" onclick="showPage('estimate')">
+            <div class="nav-icon">📝</div>
+            <span class="nav-label">Estimate</span>
+        </div>
+        <div class="nav-item" id="suppliers-nav" onclick="showPage('suppliers')">
+            <div class="nav-icon">🏪</div>
+            <span class="nav-label">Suppliers</span>
+        </div>
+    </div>
+
+    <script>
+        let demoStep = 0;
+        let estimateTotal = 0;
+        let selectedServices = [];
+        let servicePrices = {
+            cleanup: 350,
+            mow: 95,
+            mulch: 280,
+            fertilize: 65
+        };
+
+        function startDemo() {
+            document.getElementById('start-overlay').style.display = 'none';
+            setTimeout(() => {
+                showPhoneCall();
+            }, 1000);
+        }
+
+        function showPhoneCall() {
+            document.getElementById('phone-ring').classList.add('active');
+        }
+
+        function answerCall() {
+            document.getElementById('phone-ring').classList.remove('active');
+            
+            setTimeout(() => {
+                showTooltip('new-estimate-btn', 'Sarah needs an estimate. Tap here to create one.', 'bottom');
+                document.getElementById('new-estimate-btn').classList.add('highlight');
+            }, 500);
+        }
+
+        function demoEstimate() {
+            if (demoStep === 0) {
+                demoStep = 1;
+                document.getElementById('new-estimate-btn').classList.remove('highlight');
+                hideTooltip();
+                showPage('estimate');
+                
+                setTimeout(() => {
+                    showTooltip('est-name', 'Start by entering her information', 'bottom');
+                    document.getElementById('est-name').classList.add('highlight');
+                    
+                    // Auto-fill after 2 seconds
+                    setTimeout(() => {
+                        typeText('est-name', 'Sarah Miller', () => {
+                            document.getElementById('est-name').classList.remove('highlight');
+                            hideTooltip();
+                            
+                            setTimeout(() => {
+                                showTooltip('est-address', 'Now add her address', 'bottom');
+                                document.getElementById('est-address').classList.add('highlight');
+                                
+                                setTimeout(() => {
+                                    typeText('est-address', '2847 Aspen Way, Park City', () => {
+                                        document.getElementById('est-address').classList.remove('highlight');
+                                        typeText('est-phone', '(801) 555-2847', () => {
+                                            fillPropertyDetails();
+                                        });
+                                    });
+                                }, 1500);
+                            }, 500);
+                        });
+                    }, 2000);
+                }, 500);
+            }
+        }
+
+        function fillPropertyDetails() {
+            hideTooltip();
+            
+            setTimeout(() => {
+                document.getElementById('property-type').value = 'residential';
+                
+                setTimeout(() => {
+                    showTooltip('front-sqft', 'She said "about half acre" - that\'s roughly 22,000 sq ft', 'bottom');
+                    typeText('front-sqft', '8000', () => {
+                        typeText('back-sqft', '14000', () => {
+                            hideTooltip();
+                            selectServices();
+                        });
+                    });
+                }, 500);
+            }, 500);
+        }
+
+        function selectServices() {
+            setTimeout(() => {
+                showTooltip('cleanup-toggle', 'She mentioned it\'s overgrown - she\'ll need initial cleanup', 'top');
+                document.getElementById('cleanup-toggle').classList.add('highlight');
+                
+                setTimeout(() => {
+                    document.getElementById('cleanup-toggle').click();
+                    document.getElementById('cleanup-toggle').classList.remove('highlight');
+                    
+                    setTimeout(() => {
+                        showTooltip('mow-toggle', 'And ongoing weekly service', 'top');
+                        document.getElementById('mow-toggle').classList.add('highlight');
+                        
+                        setTimeout(() => {
+                            document.getElementById('mow-toggle').click();
+                            document.getElementById('mow-toggle').classList.remove('highlight');
+                            
+                            setTimeout(() => {
+                                showTooltip('mulch-toggle', 'She wants fresh mulch in the beds', 'top');
+                                document.getElementById('mulch-toggle').classList.add('highlight');
+                                
+                                setTimeout(() => {
+                                    document.getElementById('mulch-toggle').click();
+                                    document.getElementById('mulch-toggle').classList.remove('highlight');
+                                    hideTooltip();
+                                    
+                                    // Show price adjustment
+                                    setTimeout(() => {
+                                        showPriceAdjustment();
+                                    }, 1000);
+                                }, 2000);
+                            }, 500);
+                        }, 2000);
+                    }, 500);
+                }, 2000);
+            }, 1000);
+        }
+
+        function showPriceAdjustment() {
+            showTooltip('mulch-toggle', 'Wait - you know mulch costs went up. Click the price to adjust it.', 'top');
+            const mulchPrice = document.querySelector('.service-row:nth-child(3) .service-price');
+            mulchPrice.classList.add('highlight');
+            
+            setTimeout(() => {
+                // Simulate clicking to edit
+                const newPrice = prompt('Mulch prices went up. Enter new price:', '320');
+                if (newPrice) {
+                    mulchPrice.textContent = '$' + newPrice;
+                    servicePrices.mulch = parseInt(newPrice);
+                    updateEstimateTotal();
+                    mulchPrice.classList.remove('highlight');
+                    hideTooltip();
+                    
+                    showSuccess('Price updated! Always stay profitable.');
+                    
+                    setTimeout(() => {
+                        showCustomItemDemo();
+                    }, 2000);
+                }
+            }, 3000);
+        }
+
+        function showSendEstimate() {
+            setTimeout(() => {
+                showTooltip('send-estimate-btn', 'Perfect! Now send the estimate to Sarah', 'top');
+                document.getElementById('send-estimate-btn').classList.add('highlight');
+            }, 1000);
+        }
+
+        function toggleService(toggle, service, defaultPrice) {
+            toggle.classList.toggle('active');
+            const actualPrice = servicePrices[service] || defaultPrice;
+            
+            if (toggle.classList.contains('active')) {
+                selectedServices.push({ service, price: actualPrice });
+                estimateTotal += actualPrice;
+            } else {
+                selectedServices = selectedServices.filter(s => s.service !== service);
+                estimateTotal -= actualPrice;
+            }
+            
+            document.getElementById('estimate-total').textContent = estimateTotal;
+        }
+
+        function updateEstimateTotal() {
+            estimateTotal = selectedServices.reduce((total, service) => {
+                return total + (servicePrices[service.service] || service.price);
+            }, 0);
+            document.getElementById('estimate-total').textContent = estimateTotal;
+        }
+
+        function editPrice(element, service) {
+            const currentPrice = parseInt(element.textContent.replace('$', ''));
+            const newPrice = prompt(`Adjust price for ${service}:`, currentPrice);
+            
+            if (newPrice && !isNaN(newPrice)) {
+                element.textContent = '$' + newPrice;
+                servicePrices[service] = parseInt(newPrice);
+                
+                // Update total if service is selected
+                if (element.parentElement.querySelector('.toggle-switch').classList.contains('active')) {
+                    updateEstimateTotal();
+                }
+            }
+        }
+
+        function showCustomItemDemo() {
+            showTooltip('add-custom-btn', 'Sarah mentioned she wants Japanese Maple trees. Let\'s add that.', 'top');
+            const addBtn = document.querySelector('.add-custom-btn');
+            addBtn.classList.add('highlight');
+            
+            setTimeout(() => {
+                addBtn.click();
+                addBtn.classList.remove('highlight');
+                hideTooltip();
+                
+                setTimeout(() => {
+                    typeText('custom-service-name', 'Japanese Maple Trees (2)', () => {
+                        typeText('custom-service-price', '450', () => {
+                            document.querySelector('#custom-service-row button').click();
+                            
+                            setTimeout(() => {
+                                showTooltip('custom-items-list', 'Perfect! You can add any special items customers want.', 'top');
+                                
+                                setTimeout(() => {
+                                    hideTooltip();
+                                    typeText('est-notes', 'Overgrown backyard, needs major cleanup. Gate on left side. Wants weekly service after cleanup. Add 2 Japanese Maples by patio.', () => {
+                                        showSendEstimate();
+                                    });
+                                }, 3000);
+                            }, 500);
+                        });
+                    });
+                }, 1000);
+            }, 2000);
+        }
+
+        function addCustomService() {
+            document.getElementById('custom-service-row').style.display = 'flex';
+            document.getElementById('custom-service-name').value = '';
+            document.getElementById('custom-service-price').value = '';
+            document.getElementById('custom-service-name').focus();
+        }
+
+        function saveCustomService() {
+            const name = document.getElementById('custom-service-name').value;
+            const price = document.getElementById('custom-service-price').value;
+            
+            if (name && price) {
+                // Add to estimate total
+                estimateTotal += parseInt(price);
+                document.getElementById('estimate-total').textContent = estimateTotal;
+                
+                // Show custom items list
+                const customList = document.getElementById('custom-items-list');
+                customList.style.display = 'block';
+                
+                // Create custom item element
+                const itemId = 'custom-' + Date.now();
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'custom-item';
+                itemDiv.id = itemId;
+                itemDiv.innerHTML = `
+                    <span>${name}</span>
+                    <div>
+                        <span style="font-weight: 600; margin-right: 10px;">$${price}</span>
+                        <button class="remove-btn" onclick="removeCustomItem('${itemId}', ${price})">×</button>
+                    </div>
+                `;
+                
+                customList.appendChild(itemDiv);
+                
+                // Hide the input row
+                document.getElementById('custom-service-row').style.display = 'none';
+                
+                // Store in selected services
+                selectedServices.push({ service: name, price: parseInt(price), custom: true });
+            }
+        }
+
+        function removeCustomItem(itemId, price) {
+            // Remove from DOM
+            document.getElementById(itemId).remove();
+            
+            // Update total
+            estimateTotal -= price;
+            document.getElementById('estimate-total').textContent = estimateTotal;
+            
+            // Remove from selected services
+            const itemElement = document.getElementById(itemId);
+            const itemName = itemElement?.querySelector('span')?.textContent;
+            selectedServices = selectedServices.filter(s => s.service !== itemName);
+            
+            // Hide custom list if empty
+            const customList = document.getElementById('custom-items-list');
+            if (customList.children.length === 1) { // Only the h4 remains
+                customList.style.display = 'none';
+            }
+        }
+
+        function sendEstimate() {
+            document.getElementById('send-estimate-btn').classList.remove('highlight');
+            hideTooltip();
+            
+            showSuccess('Estimate sent to Sarah! 📱');
+            
+            setTimeout(() => {
+                showPage('today');
+                document.getElementById('new-job-card').style.display = 'block';
+                
+                setTimeout(() => {
+                    showTooltip('new-job-card', 'Great! Sarah\'s estimate is now on your schedule for this afternoon', 'top');
+                    document.getElementById('new-job-card').classList.add('highlight');
+                    
+                    setTimeout(() => {
+                        document.getElementById('new-job-card').classList.remove('highlight');
+                        hideTooltip();
+                        
+                        setTimeout(() => {
+                            showSupplierNotification();
+                        }, 2000);
+                    }, 4000);
+                }, 500);
+            }, 2000);
+        }
+
+        function showSupplierNotification() {
+            showTooltip('suppliers-nav', '💡 You\'ll need materials for Sarah\'s job. Let\'s check prices!', 'top');
+            document.getElementById('suppliers-nav').classList.add('highlight');
+            
+            // Set flag for showing multiple suppliers
+            window.needsMultipleSuppliers = true;
+        }
+
+        function showKnownSuppliers() {
+            document.getElementById('known-suppliers-section').style.display = 'block';
+            document.getElementById('manual-entry-section').style.display = 'none';
+        }
+
+        function showManualEntry() {
+            document.getElementById('known-suppliers-section').style.display = 'none';
+            document.getElementById('manual-entry-section').style.display = 'block';
+            
+            // Demo mode - show the manual entry process
+            if (demoStep > 0) {
+                setTimeout(() => {
+                    showTooltip('manual-supplier', 'Your buddy Tony texted - he has leftover mulch from a big job', 'bottom');
+                    
+                    setTimeout(() => {
+                        typeText('manual-supplier', 'Tony\'s Cash & Carry', () => {
+                            hideTooltip();
+                            typeText('manual-price', '2.50', () => {
+                                typeText('manual-notes', 'Cash only - call Tony first', () => {
+                                    showTooltip('manual-entry-section', 'That\'s way cheaper than retail! Let\'s use Tony\'s price.', 'top');
+                                });
+                            });
+                        });
+                    }, 1500);
+                }, 500);
+            }
+        }
+
+        function saveManualPrice() {
+            const supplier = document.getElementById('manual-supplier').value;
+            const price = document.getElementById('manual-price').value;
+            const unit = document.getElementById('price-unit').value;
+            
+            if (supplier && price) {
+                let totalPrice = 0;
+                if (unit === 'bag') {
+                    totalPrice = price * 35; // 35 bags needed
+                } else if (unit === 'yard') {
+                    totalPrice = price * 3.5; // 3.5 yards needed
+                } else {
+                    totalPrice = price;
+                }
+                
+                document.getElementById('manual-total').textContent = '$' + totalPrice.toFixed(2);
+                document.getElementById('manual-comparison').style.display = 'block';
+                
+                hideTooltip();
+                showSuccess('Tony\'s price saved! You\'ll save even more on this job.');
+                
+                setTimeout(() => {
+                    showTooltip('manual-comparison', 'This is why relationships matter in landscaping!', 'top');
+                }, 1500);
+            }
+        }
+
+        function showPage(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(page + '-page').classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            
+            if (event && event.target) {
+                event.target.closest('.nav-item').classList.add('active');
+            }
+            
+            if (page === 'suppliers' && document.getElementById('suppliers-nav').classList.contains('highlight')) {
+                document.getElementById('suppliers-nav').classList.remove('highlight');
+                hideTooltip();
+                
+                if (window.needsMultipleSuppliers) {
+                    // Show mulch suppliers first
+                    document.getElementById('supplier-header').textContent = 'Find Best Price - Mulch';
+                    document.getElementById('known-suppliers-section').style.display = 'block';
+                    document.getElementById('tree-suppliers-section').style.display = 'none';
+                    
+                    setTimeout(() => {
+                        showTooltip('suppliers-page', 'First, let\'s find mulch. The app tracks all your material needs!', 'top');
+                    }, 500);
+                }
+            }
+        }
+
+        function selectSupplier() {
+            hideTooltip();
+            showSuccess('IFA added to route - save $45 on mulch! 💰');
+            
+            // Check if we need to show tree suppliers next
+            if (window.needsMultipleSuppliers && !window.shownTreeSuppliers) {
+                window.shownTreeSuppliers = true;
+                
+                setTimeout(() => {
+                    // Switch to tree suppliers
+                    document.getElementById('supplier-header').textContent = 'Find Best Price - Japanese Maple Trees';
+                    document.getElementById('known-suppliers-section').style.display = 'none';
+                    document.getElementById('tree-suppliers-section').style.display = 'block';
+                    
+                    setTimeout(() => {
+                        showTooltip('tree-suppliers-section', 'Now let\'s find those Japanese Maples. Specialty items need specialty suppliers!', 'top');
+                    }, 500);
+                }, 2000);
+            } else {
+                setTimeout(() => {
+                    showPage('today');
+                    
+                    setTimeout(() => {
+                        showFinalMessage();
+                    }, 1000);
+                }, 2000);
+            }
+        }
+        
+        function selectTreeSupplier() {
+            hideTooltip();
+            showSuccess('Millcreek Gardens added to route! Complete material list ready.');
+            
+            setTimeout(() => {
+                showPage('today');
+                
+                // Show route summary
+                setTimeout(() => {
+                    showRouteSummary();
+                }, 1000);
+            }, 2000);
+        }
+        
+        function showRouteSummary() {
+            const overlay = document.createElement('div');
+            overlay.className = 'demo-overlay';
+            overlay.innerHTML = `
+                <div class="demo-popup">
+                    <h2>Today's Optimized Route 🗺️</h2>
+                    <div style="text-align: left; margin: 20px 0;">
+                        <p style="margin-bottom: 15px;"><strong>Supply Stops:</strong></p>
+                        <ol style="margin-left: 20px; margin-bottom: 20px;">
+                            <li>IFA Country Store - Pick up mulch (35 bags)</li>
+                            <li>Millcreek Gardens - Pick up 2 Japanese Maples</li>
+                            <li>Sarah Miller - 2847 Aspen Way (3:30 PM)</li>
+                        </ol>
+                        <p><strong>Total drive time:</strong> 28 minutes<br>
+                        <strong>Material cost:</strong> $394.65<br>
+                        <strong>Job estimate:</strong> $1,215</p>
+                    </div>
+                    <button class="demo-button" onclick="document.body.removeChild(this.closest('.demo-overlay')); showFinalMessage();">Continue</button>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+        }
+        
+        function showSupplierRoute() {
+            alert('Opening optimized route in Maps...\n\n1. Current location\n2. IFA (2.3 mi)\n3. Millcreek Gardens (3.8 mi)\n4. Sarah\'s house (7.2 mi total)');
+        }
+
+        function showFinalMessage() {
+            const overlay = document.createElement('div');
+            overlay.className = 'demo-overlay';
+            overlay.innerHTML = `
+                <div class="demo-popup">
+                    <h2>Demo Complete! 🎉</h2>
+                    <p><strong>What you just experienced:</strong></p>
+                    <ul style="text-align: left; margin: 20px 0;">
+                        <li>• Captured a new lead while on the job</li>
+                        <li>• Created professional estimate in 2 minutes</li>
+                        <li>• Adjusted prices on the fly (mulch went up)</li>
+                        <li>• Added custom items (Japanese Maples)</li>
+                        <li>• Found suppliers for ALL materials</li>
+                        <li>• Created optimized supply route</li>
+                        <li>• Everything stored locally on your phone</li>
+                    </ul>
+                    <p style="margin-top: 20px;"><strong>Your daily reality:</strong><br>
+                    No paper, no forgotten customers, no missed opportunities.</p>
+                    <button class="demo-button" onclick="location.reload()">Restart Demo</button>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+        }
+
+        // Helper Functions
+        function showTooltip(elementId, text, position = 'bottom') {
+            const element = document.getElementById(elementId);
+            const tooltip = document.getElementById('tooltip');
+            const tooltipText = document.getElementById('tooltip-text');
+            
+            tooltipText.textContent = text;
+            tooltip.classList.add('active');
+            
+            const rect = element.getBoundingClientRect();
+            const tooltipRect = tooltip.getBoundingClientRect();
+            
+            if (position === 'bottom') {
+                tooltip.style.top = (rect.bottom + 10) + 'px';
+                tooltip.style.left = (rect.left + rect.width / 2 - tooltipRect.width / 2) + 'px';
+            } else {
+                tooltip.style.top = (rect.top - tooltipRect.height - 10) + 'px';
+                tooltip.style.left = (rect.left + rect.width / 2 - tooltipRect.width / 2) + 'px';
+            }
+        }
+
+        function hideTooltip() {
+            document.getElementById('tooltip').classList.remove('active');
+        }
+
+        function showSuccess(message) {
+            const success = document.getElementById('success-message');
+            document.getElementById('success-text').textContent = message;
+            success.classList.add('active');
+            
+            setTimeout(() => {
+                success.classList.remove('active');
+            }, 3000);
+        }
+
+        function typeText(elementId, text, callback) {
+            const element = document.getElementById(elementId);
+            let index = 0;
+            
+            const interval = setInterval(() => {
+                if (index < text.length) {
+                    element.value += text[index];
+                    index++;
+                } else {
+                    clearInterval(interval);
+                    if (callback) callback();
+                }
+            }, 50);
+        }
+
+        // Prevent accidental navigation during demo
+        window.addEventListener('beforeunload', (e) => {
+            if (demoStep > 0) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+    </script>
+</body>
+</html>
